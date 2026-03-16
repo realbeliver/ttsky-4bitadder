@@ -1,49 +1,56 @@
-`default_nettype none
 `timescale 1ns / 1ps
 
-/* This testbench just instantiates the module and makes some convenient wires
-   that can be driven / tested by the cocotb test.py.
-*/
-module tb ();
+module tb_cells();
 
-  // Dump the signals to a FST file. You can view it with gtkwave or surfer.
-  initial begin
-    $dumpfile("tb.fst");
-    $dumpvars(0, tb);
-    #1;
-  end
+    // Inputs
+    reg a, b, sel, in;
+    reg clk, d, s, r;
 
-  // Wire up the inputs and outputs:
-  reg clk;
-  reg rst_n;
-  reg ena;
-  reg [7:0] ui_in;
-  reg [7:0] uio_in;
-  wire [7:0] uo_out;
-  wire [7:0] uio_out;
-  wire [7:0] uio_oe;
-`ifdef GL_TEST
-  wire VPWR = 1'b1;
-  wire VGND = 1'b0;
-`endif
+    // Outputs
+    wire out_buf, out_and, out_or, out_xor, out_nand, out_not, out_mux;
+    wire q_dff, notq_dff, q_dffsr, notq_dffsr;
 
-  // Replace tt_um_example with your module name:
-  tt_um_example user_project (
+    // Instantiate Combinational Cells
+    buffer_cell u_buf  (.in(in), .out(out_buf));
+    and_cell    u_and  (.a(a), .b(b), .out(out_and));
+    or_cell     u_or   (.a(a), .b(b), .out(out_or));
+    xor_cell    u_xor  (.a(a), .b(b), .out(out_xor));
+    nand_cell   u_nand (.a(a), .b(b), .out(out_nand));
+    not_cell    u_not  (.in(in), .out(out_not));
+    mux_cell    u_mux  (.a(a), .b(b), .sel(sel), .out(out_mux));
 
-      // Include power ports for the Gate Level test:
-`ifdef GL_TEST
-      .VPWR(VPWR),
-      .VGND(VGND),
-`endif
+    // Instantiate Sequential Cells
+    dff_cell    u_dff   (.clk(clk), .d(d), .q(q_dff), .notq(notq_dff));
+    dffsr_cell  u_dffsr (.clk(clk), .d(d), .s(s), .r(r), .q(q_dffsr), .notq(notq_dffsr));
 
-      .ui_in  (ui_in),    // Dedicated inputs
-      .uo_out (uo_out),   // Dedicated outputs
-      .uio_in (uio_in),   // IOs: Input path
-      .uio_out(uio_out),  // IOs: Output path
-      .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
-      .ena    (ena),      // enable - goes high when design is selected
-      .clk    (clk),      // clock
-      .rst_n  (rst_n)     // not reset
-  );
+    // Clock Generation (100MHz)
+    always #5 clk = ~clk;
+
+    initial begin
+        // Initialize
+        clk = 0; a = 0; b = 0; sel = 0; in = 0;
+        d = 0; s = 0; r = 0;
+
+        $monitor("Time=%0t | in=%b a=%b b=%b sel=%b | AND=%b OR=%b XOR=%b MUX=%b | DFF_Q=%b DFFSR_Q=%b", 
+                 $time, in, a, b, sel, out_and, out_or, out_xor, out_mux, q_dff, q_dffsr);
+
+        // --- Test Combinational Logic ---
+        #10 in = 1; a = 0; b = 1;
+        #10 a = 1; b = 0;
+        #10 a = 1; b = 1;
+        #10 sel = 1; // Test Mux switching to 'b'
+
+        // --- Test D-FlipFlop (DFF) ---
+        #10 d = 1; 
+        #10 d = 0;
+
+        // --- Test DFF with Set/Reset (DFFSR) ---
+        #10 r = 1; // Assert Reset
+        #10 r = 0; d = 1;
+        #10 s = 1; // Assert Set (Override D)
+        #10 s = 0;
+
+        #50 $finish;
+    end
 
 endmodule
