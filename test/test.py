@@ -5,7 +5,6 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 
-
 @cocotb.test()
 async def test_project(dut):
     dut._log.info("Start")
@@ -23,18 +22,31 @@ async def test_project(dut):
     await ClockCycles(dut.clk, 10)
     dut.rst_n.value = 1
 
-    dut._log.info("Test project behavior")
+    dut._log.info("Test 4-Bit Adder Behavior")
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    # Define a helper to set A and B easily
+    def set_inputs(a, b):
+        # A is lower 4 bits, B is upper 4 bits
+        # Formula: (B << 4) | A
+        return (b << 4) | a
 
-    # Wait for one clock cycle to see the output values
+    # Case 1: 2 + 3 = 5
+    dut.ui_in.value = set_inputs(2, 3)
     await ClockCycles(dut.clk, 1)
+    dut._log.info(f"Input: A=2, B=3 | Output: {int(dut.uo_out.value)}")
+    assert int(dut.uo_out.value) == 5
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+    # Case 2: 10 + 5 = 15 (Max sum without carry)
+    dut.ui_in.value = set_inputs(10, 5)
+    await ClockCycles(dut.clk, 1)
+    dut._log.info(f"Input: A=10, B=5 | Output: {int(dut.uo_out.value)}")
+    assert int(dut.uo_out.value) == 15
 
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    # Case 3: 8 + 8 = 16 (Result: Sum=0, Carry=1)
+    # uo_out[4] is the Carry bit, so value should be 16 (binary 0001 0000)
+    dut.ui_in.value = set_inputs(8, 8)
+    await ClockCycles(dut.clk, 1)
+    dut._log.info(f"Input: A=8, B=8 | Output: {int(dut.uo_out.value)}")
+    assert int(dut.uo_out.value) == 16 
+
+    dut._log.info("All tests passed!")
