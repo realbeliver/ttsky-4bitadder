@@ -47,3 +47,7 @@ pinout:
 
 # Do not change!
 yaml_version: 6
+
+# Verilog files for synthesis
+verilog_files:
+  - src/cell.v
