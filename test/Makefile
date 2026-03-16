@@ -27,6 +27,7 @@ COMPILE_ARGS    += -DSIM
 
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+VERILOG_SOURCES += tb.v
 
 endif
 
