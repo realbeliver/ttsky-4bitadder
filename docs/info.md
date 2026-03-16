@@ -8,13 +8,13 @@ You can also include images in this folder and reference them in the markdown. E
 -->
 
 ## How it works
-
-Explain how your project works
+This is a simple 4 Bit Adder.
 
 ## How to test
-
-Explain how to use your project
+Connect Buttons (or Dip Switches) to the inputs.
+0 to 3 are for the first number, and 4 to 7 for the second number.
+Connect LEDs to the outputs.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+8 buttons and 8 leds
