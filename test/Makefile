@@ -7,6 +7,8 @@ TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = cells.v
 
+# Default: skip gate-level testing (GL_TEST=0 disables it)
+GATES ?= no
 ifneq ($(GATES),yes)
 
 # RTL simulation:
