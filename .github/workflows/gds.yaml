@@ -26,7 +26,6 @@ jobs:
         uses: TinyTapeout/tt-gds-action/precheck@ttsky26a
 
   gl_test:
-    if: false  # Disabled: gate-level testing not applicable for simple designs
     needs: gds
     runs-on: ubuntu-24.04
     steps:
