@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module cell_tb;
+module tb;
 
     // Test parameters
     parameter CLK_PERIOD = 10;  // 10ns clock period
